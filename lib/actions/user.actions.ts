@@ -21,6 +21,11 @@ const {
   APPWRITE_BANK_COLLECTION_ID: BANK_COLLECTION_ID,
 } = process.env;
 
+/**
+ * Retrieves user information from the database based on the provided userId.
+ * @param {getUserInfoProps} userId - The unique identifier of the user to retrieve information for.
+ * @returns {Promise<any>} The user information retrieved from the database.
+ */
 export const getUserInfo = async ({ userId }: getUserInfoProps) => {
   try {
     const { database } = await createAdminClient();
@@ -37,11 +42,22 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
   }
 };
 
+/**
+ * Sign in a user with the provided email and password.
+ * @param {Object} signInProps - Object containing email and password for signing in.
+ * @param {string} signInProps.email - User's email address.
+ * @param {string} signInProps.password - User's password.
+ * @returns {Promise<Object>} - A Promise that resolves to the user information after successful sign-in.
+ */
 export const signIn = async ({ email, password }: signInProps) => {
   try {
+    // Create an admin client and retrieve the account information
     const { account } = await createAdminClient();
+
+    // Create a session using the provided email and password
     const session = await account.createEmailPasswordSession(email, password);
 
+    // Set the session cookie with specific options
     cookies().set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
@@ -49,14 +65,23 @@ export const signIn = async ({ email, password }: signInProps) => {
       secure: true,
     });
 
+    // Retrieve user information using the session's userId
     const user = await getUserInfo({ userId: session.userId });
 
+    // Return the user information after converting it to a string
     return parseStringify(user);
   } catch (error) {
+    // Log any errors that occur during the sign-in process
     console.error("Error", error);
   }
 };
 
+/**
+ * Creates a new user account with the provided user data and password.
+ * Also creates a Dwolla customer for the user and sets up a session.
+ * @param {SignUpParams} userData - The user data including email, first name, last name, and other details.
+ * @returns {Promise<string>} A stringified version of the newly created user.
+ */
 export const signUp = async ({ password, ...userData }: SignUpParams) => {
   const { email, firstName, lastName } = userData;
 
@@ -110,6 +135,12 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
   }
 };
 
+/**
+ * Asynchronously retrieves the logged-in user information.
+ * This function first creates a session client to get the account information,
+ * then fetches the user information based on the account ID.
+ * @returns {Promise<Object|null>} A promise that resolves with the user information object or null if an error occurs.
+ */
 export async function getLoggedInUser() {
   try {
     const { account } = await createSessionClient();
@@ -124,6 +155,10 @@ export async function getLoggedInUser() {
   }
 }
 
+/**
+ * Logs out the current account by deleting the session.
+ * @returns {Promise<void>} A Promise that resolves once the account is successfully logged out.
+ */
 export const logoutAccount = async () => {
   try {
     const { account } = await createSessionClient();
@@ -136,6 +171,11 @@ export const logoutAccount = async () => {
   }
 };
 
+/**
+ * Creates a link token for the given user using Plaid API.
+ * @param user - The user object for which the link token is being created.
+ * @returns A Promise that resolves to an object containing the link token.
+ */
 export const createLinkToken = async (user: User) => {
   try {
     const tokenParams = {
@@ -156,6 +196,11 @@ export const createLinkToken = async (user: User) => {
   }
 };
 
+/**
+ * Creates a new bank account for a user in the database.
+ * @param {createBankAccountProps} params - Object containing user and bank account details.
+ * @returns {Promise<string>} A Promise that resolves to a stringified representation of the created bank account.
+ */
 export const createBankAccount = async ({
   userId,
   bankId,
@@ -187,6 +232,14 @@ export const createBankAccount = async ({
   }
 };
 
+/**
+ * Exchanges a public token for an access token and item ID, retrieves account information from Plaid,
+ * creates a processor token for Dwolla, and creates a funding source URL for the account.
+ * Finally, creates a bank account and returns a success message.
+ *
+ * @param {exchangePublicTokenProps} Object containing publicToken and user information
+ * @returns {Promise<string>} A success message indicating the public token exchange is complete
+ */
 export const exchangePublicToken = async ({
   publicToken,
   user,
@@ -251,6 +304,11 @@ export const exchangePublicToken = async ({
   }
 };
 
+/**
+ * Retrieves a list of banks associated with a specific user from the database.
+ * @param {getBanksProps} userId - The ID of the user for whom to retrieve the banks.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of bank objects.
+ */
 export const getBanks = async ({ userId }: getBanksProps) => {
   try {
     const { database } = await createAdminClient();
@@ -283,6 +341,11 @@ export const getBank = async ({ documentId }: getBankProps) => {
   }
 };
 
+/**
+ * Retrieves bank information by account ID from the database.
+ * @param {getBankByAccountIdProps} accountId - The account ID to search for.
+ * @returns {Promise<Object | null>} The bank information if found, otherwise null.
+ */
 export const getBankByAccountId = async ({
   accountId,
 }: getBankByAccountIdProps) => {

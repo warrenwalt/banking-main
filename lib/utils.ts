@@ -9,7 +9,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // FORMAT DATE TIME
+/**
+ * Formats the given date string into different date and time formats.
+ * @param dateString The date string to be formatted.
+ * @returns An object containing formatted date and time strings.
+ */
 export const formatDateTime = (dateString: Date) => {
+  // Options for formatting date and time
   const dateTimeOptions: Intl.DateTimeFormatOptions = {
     weekday: "short", // abbreviated weekday name (e.g., 'Mon')
     month: "short", // abbreviated month name (e.g., 'Oct')
@@ -19,6 +25,7 @@ export const formatDateTime = (dateString: Date) => {
     hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
   };
 
+  // Options for formatting date with day
   const dateDayOptions: Intl.DateTimeFormatOptions = {
     weekday: "short", // abbreviated weekday name (e.g., 'Mon')
     year: "numeric", // numeric year (e.g., '2023')
@@ -26,38 +33,42 @@ export const formatDateTime = (dateString: Date) => {
     day: "2-digit", // numeric day of the month (e.g., '25')
   };
 
+  // Options for formatting date only
   const dateOptions: Intl.DateTimeFormatOptions = {
     month: "short", // abbreviated month name (e.g., 'Oct')
     year: "numeric", // numeric year (e.g., '2023')
     day: "numeric", // numeric day of the month (e.g., '25')
   };
 
+  // Options for formatting time only
   const timeOptions: Intl.DateTimeFormatOptions = {
     hour: "numeric", // numeric hour (e.g., '8')
     minute: "numeric", // numeric minute (e.g., '30')
     hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
   };
 
+  // Format date and time strings using the specified options
   const formattedDateTime: string = new Date(dateString).toLocaleString(
     "en-US",
-    dateTimeOptions
+    dateTimeOptions,
   );
 
   const formattedDateDay: string = new Date(dateString).toLocaleString(
     "en-US",
-    dateDayOptions
+    dateDayOptions,
   );
 
   const formattedDate: string = new Date(dateString).toLocaleString(
     "en-US",
-    dateOptions
+    dateOptions,
   );
 
   const formattedTime: string = new Date(dateString).toLocaleString(
     "en-US",
-    timeOptions
+    timeOptions,
   );
 
+  // Return an object with formatted date and time strings
   return {
     dateTime: formattedDateTime,
     dateDay: formattedDateDay,
@@ -66,6 +77,12 @@ export const formatDateTime = (dateString: Date) => {
   };
 };
 
+/**
+ * Formats the given number as a currency amount in USD.
+ *
+ * @param amount - The number to be formatted as a currency amount.
+ * @returns A string representing the formatted currency amount.
+ */
 export function formatAmount(amount: number): string {
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -98,7 +115,7 @@ export function formUrlQuery({ params, key, value }: UrlQueryParams) {
       url: window.location.pathname,
       query: currentUrl,
     },
-    { skipNull: true }
+    { skipNull: true },
   );
 }
 
@@ -130,8 +147,13 @@ export function getAccountTypeColors(type: AccountTypes) {
   }
 }
 
+/**
+ * Counts the number of transactions for each category and returns an array of CategoryCount objects.
+ * @param transactions An array of Transaction objects containing category information.
+ * @returns An array of CategoryCount objects with category name, count, and total count.
+ */
 export function countTransactionCategories(
-  transactions: Transaction[]
+  transactions: Transaction[],
 ): CategoryCount[] {
   const categoryCounts: { [category: string]: number } = {};
   let totalCount = 0;
@@ -160,7 +182,7 @@ export function countTransactionCategories(
       name: category,
       count: categoryCounts[category],
       totalCount,
-    })
+    }),
   );
 
   // Sort the aggregatedCategories array by count in descending order
@@ -195,17 +217,25 @@ export const getTransactionStatus = (date: Date) => {
   return date > twoDaysAgo ? "Processing" : "Success";
 };
 
-export const authFormSchema = (type: string) => z.object({
-  // sign up
-  firstName: type === 'sign-in' ? z.string().optional() : z.string().min(3),
-  lastName: type === 'sign-in' ? z.string().optional() : z.string().min(3),
-  address1: type === 'sign-in' ? z.string().optional() : z.string().max(50),
-  city: type === 'sign-in' ? z.string().optional() : z.string().max(50),
-  state: type === 'sign-in' ? z.string().optional() : z.string().min(2).max(2),
-  postalCode: type === 'sign-in' ? z.string().optional() : z.string().min(3).max(6),
-  dateOfBirth: type === 'sign-in' ? z.string().optional() : z.string().min(3),
-  ssn: type === 'sign-in' ? z.string().optional() : z.string().min(3),
-  // both
-  email: z.string().email(),
-  password: z.string().min(8),
-})
+/**
+ * Defines the validation schema for the authentication form based on the provided type.
+ * @param type - The type of authentication form ('sign-in' or 'sign-up').
+ * @returns The authentication form validation schema.
+ */
+export const authFormSchema = (type: string) =>
+  z.object({
+    // sign up
+    firstName: type === "sign-in" ? z.string().optional() : z.string().min(3),
+    lastName: type === "sign-in" ? z.string().optional() : z.string().min(3),
+    address1: type === "sign-in" ? z.string().optional() : z.string().max(50),
+    city: type === "sign-in" ? z.string().optional() : z.string().max(50),
+    state:
+      type === "sign-in" ? z.string().optional() : z.string().min(2).max(2),
+    postalCode:
+      type === "sign-in" ? z.string().optional() : z.string().min(3).max(6),
+    dateOfBirth: type === "sign-in" ? z.string().optional() : z.string().min(3),
+    ssn: type === "sign-in" ? z.string().optional() : z.string().min(3),
+    // both
+    email: z.string().email(),
+    password: z.string().min(8),
+  });
